@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Cargar la API de Google Maps -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBDaeWicvigtP9xPv919E-RNoxfvC-Hqik&callback=iniciarMap" async defer></script>
+  </head>
+  <body class="bg-gray-900 text-white">
+
+    <!-- Static Navbar -->
+    <nav class="bg-gray-800 p-4 fixed top-0 left-0 w-full z-50 shadow-lg">
+      <div class="max-w-7xl mx-auto flex justify-between items-center">
+        <a href="#" class="text-white text-lg font-bold">Dashboard</a>
+        <div class="space-x-4">
+          <a href="inicio.php" class="text-white hover:text-gray-300">Inicio</a>
+          <a href="monitoreo.php" class="text-white hover:text-gray-300">Monitoreo</a>
+          <a href="logout.php" class="text-white hover:text-gray-300">Cerrar Sesión</a>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="p-4 grid grid-cols-12 gap-4 mt-20">
+      <!-- Left Panel -->
+      <div class="col-span-12 lg:col-span-6 bg-gray-800 rounded-lg p-4">
+        <h2 class="text-lg font-bold mb-4">System Visualization</h2>
+        <!-- Contenedor del mapa -->
+        <div id="map" class="w-full h-96"></div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="col-span-12 lg:col-span-6 grid grid-cols-2 gap-4">
+        <!-- Donut Charts -->
+        <div class="col-span-1 bg-gray-800 rounded-lg p-4">
+          <h3 class="text-sm font-semibold">Dasbate 1</h3>
+          <canvas id="donut1"></canvas>
+        </div>
+        <div class="col-span-1 bg-gray-800 rounded-lg p-4">
+          <h3 class="text-sm font-semibold">Dasbate 2</h3>
+          <canvas id="donut2"></canvas>
+        </div>
+        <div class="col-span-1 bg-gray-800 rounded-lg p-4">
+          <h3 class="text-sm font-semibold">Dasbate 3</h3>
+          <canvas id="donut3"></canvas>
+        </div>
+        <div class="col-span-1 bg-gray-800 rounded-lg p-4">
+          <h3 class="text-sm font-semibold">Dasbate 4</h3>
+          <canvas id="donut4"></canvas>
+        </div>
+      </div>
+
+      <!-- Statistics Table -->
+      <div class="col-span-12 bg-gray-800 rounded-lg p-4">
+        <h2 class="text-lg font-bold mb-4">Statistics</h2>
+        <table class="w-full table-auto text-sm">
+          <thead>
+            <tr class="bg-gray-700">
+              <th class="p-2">Index</th>
+              <th class="p-2">A Series</th>
+              <th class="p-2">B Series</th>
+              <th class="p-2">C Series</th>
+              <th class="p-2">D Series</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td class="p-2">Current Value</td>
+              <td class="p-2">12220</td>
+              <td class="p-2">5855</td>
+              <td class="p-2">12900</td>
+              <td class="p-2">14200</td>
+            </tr>
+            <tr class="bg-gray-700">
+              <td class="p-2">Year-on-Year</td>
+              <td class="p-2">22%</td>
+              <td class="p-2">14%</td>
+              <td class="p-2">16%</td>
+              <td class="p-2">22%</td>
+            </tr>
+            <tr>
+              <td class="p-2">Early Period</td>
+              <td class="p-2">10%</td>
+              <td class="p-2">5%</td>
+              <td class="p-2">12%</td>
+              <td class="p-2">22%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Bottom Charts -->
+      <div class="col-span-12 lg:col-span-6 bg-gray-800 rounded-lg p-4">
+        <h2 class="text-lg font-bold mb-4">Market Analysis</h2>
+        <canvas id="bar-chart"></canvas>
+      </div>
+      <div class="col-span-12 lg:col-span-6 bg-gray-800 rounded-lg p-4">
+        <h2 class="text-lg font-bold mb-4">User Statistics</h2>
+        <canvas id="line-chart"></canvas>
+      </div>
+    </div>
+
+    <script>
+      // Crear el mapa cuando se cargue la API de Google Maps
+      function iniciarMap() {
+        const ubicaciones = [
+          { lat: -16.5086, lng: -68.1689, titulo: "Basurero Zona Villa Adela" },
+          { lat: -16.5134, lng: -68.1998, titulo: "Basurero Zona 16 de Julio" },
+          { lat: -16.5272, lng: -68.2090, titulo: "Basurero Zona Ciudad Satélite" },
+          { lat: -16.4952, lng: -68.2346, titulo: "Basurero Zona San Luis" },
+        ];
+
+        const map = new google.maps.Map(document.getElementById("map"), {
+          zoom: 14,
+          center: { lat: -16.5124, lng: -68.1599 }, // Coordenadas del centro
+        });
+
+        ubicaciones.forEach(function (ubicacion) {
+          new google.maps.Marker({
+            position: { lat: ubicacion.lat, lng: ubicacion.lng },
+            map: map,
+            title: ubicacion.titulo,
+          });
+        });
+      }
+
+      // Donut Charts
+      const createDonutChart = (id, label) => {
+        new Chart(document.getElementById(id), {
+          type: "doughnut",
+          data: {
+            labels: ["Completed", "Pending"],
+            datasets: [
+              {
+                data: [70, 30],
+                backgroundColor: ["#4CAF50", "#FF5252"],
+              },
+            ],
+          },
+        });
+      };
+      createDonutChart("donut1");
+      createDonutChart("donut2");
+      createDonutChart("donut3");
+      createDonutChart("donut4");
+
+      // Line Chart
+      new Chart(document.getElementById("line-chart"), {
+        type: "line",
+        data: {
+          labels: ["2007", "2008", "2009", "2010", "2011", "2012"],
+          datasets: [
+            {
+              label: "Growth Rate",
+              data: [2, 5, 3, 6, 8, 7],
+              borderColor: "#42A5F5",
+              fill: false,
+            },
+          ],
+        },
+      });
+
+      // Bar Chart
+      new Chart(document.getElementById("bar-chart"), {
+        type: "bar",
+        data: {
+          labels: ["China", "Japan", "Vietnam", "Thailand", "Korea"],
+          datasets: [
+            {
+              label: "Sales Volume",
+              data: [400, 350, 300, 200, 100],
+              backgroundColor: [
+                "#4CAF50",
+                "#FF9800",
+                "#03A9F4",
+                "#E91E63",
+                "#FFC107",
+              ],
+            },
+          ],
+        },
+      });
+    </script>
+  </body>
+</html>
